@@ -5,14 +5,20 @@ let person = {
 }
 
 let handler = {
-  set(target, key, value) {
-    console.log(`${key}: ${target[key]} -> ${value}`)
-    return Reflect.set(target, key, value)
+  get(target, key) {
+    if (key === "name") {
+      return "Mindy"
+    }
+
+    if (Reflect.has(target, key)) {
+      return Reflect.get(target, key)
+    }
+
+    return "You tried to access something undefined"
   }
 }
 
 person = new Proxy(person, handler)
 
-person.name = "Mindy"
-person.name = "Ben"
 console.log(person.name)
+console.log(person.age)
