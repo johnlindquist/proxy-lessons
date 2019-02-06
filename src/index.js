@@ -1,24 +1,27 @@
-"use strict"
+import fetch from "node-fetch"
 
-let person = {
-  name: "John"
+const createApi = url =>
+  new Proxy(
+    {},
+    {
+      get(target, key) {
+        return async function(id = "") {
+          const response = await fetch(`${url}/${key}/${id}`)
+          if (response.ok) {
+            return response.json()
+          }
+
+          return Promise.resolve({ error: "Malformed Request" })
+        }
+      }
+    }
+  )
+
+async function go() {
+  const api = createApi("https://swapi.co/api")
+  const people = await api.people()
+
+  console.log(people)
 }
 
-let handler = {
-  get(target, key) {
-    if (key === "name") {
-      return "Mindy"
-    }
-
-    if (Reflect.has(target, key)) {
-      return Reflect.get(target, key)
-    }
-
-    return "You tried to access something undefined"
-  }
-}
-
-person = new Proxy(person, handler)
-
-console.log(person.name)
-console.log(person.age)
+go()
